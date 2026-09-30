@@ -1,0 +1,17 @@
+# Caddy reverse proxy: automatic Let's Encrypt TLS, proxies to emberfalld.
+# DOMAIN is set in .env (e.g. api.emberfall.game).
+
+{$DOMAIN} {
+	reverse_proxy emberfalld:8080
+
+	# Tighten a little at the edge; the app also rate-limits per player.
+	header {
+		Strict-Transport-Security "max-age=31536000;"
+		X-Content-Type-Options "nosniff"
+	}
+
+	log {
+		output stdout
+		format console
+	}
+}
