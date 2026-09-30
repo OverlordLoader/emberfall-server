@@ -69,6 +69,13 @@ func Summon(cfg GameConfig, rng *rand.Rand, pity int) (SummonResult, int) {
 	return pick, newPity
 }
 
+// SummonEpic rolls one guaranteed epic commander from the epic pool.
+// Used for paid epic grants (IAP bundles). Like any epic pull it resets the
+// pity counter — see store.grantEpicCommanders.
+func SummonEpic(rng *rand.Rand) SummonResult {
+	return epicCommanders[rng.Intn(len(epicCommanders))]
+}
+
 // DailyQuest is one day's quest definition (data-driven, generous).
 type DailyQuest struct {
 	Key         string         `json:"key"`

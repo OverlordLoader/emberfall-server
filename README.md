@@ -246,8 +246,14 @@ additive work:
    garrisons those troops instead of bouncing them home.
 5. **Rallies**: MVP resolves each march independently; combined rallies are new
    (additive) logic.
-6. **Monetization**: App Store receipt verification for speedups/shields/summon
-   tickets (server-side verify → `GrantItems`).
+6. **Monetization**: App Store receipt verification, then `store.FulfillIAPProduct`
+   (grants per `store.IAPProductGrants` — the single source of truth, which
+   must match the client's StoreManager exactly). Current products, all
+   consumable (the game is ad-free, so there is no remove-ads product):
+   `app.emberfall.game.bundle.speedup` ($1.99 → 3x 15-min speedups),
+   `app.emberfall.game.summon.epic10` ($4.99 → 10 summon tickets),
+   `app.emberfall.game.bundle.warden` ($4.99 → 8x 15-min speedups +
+   3 guaranteed epic summons, pity-respecting).
 
 ## What was deliberately deferred
 

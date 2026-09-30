@@ -212,6 +212,27 @@ func (s *Store) SummonCommanders(ctx context.Context, playerID string, count int
 	return results, err
 }
 
+// grantEpicCommanders inserts count guaranteed-epic commanders, honoring the
+// pity convention: an epic pull resets pity to 0 (see sim.Summon). Used by
+// IAP fulfillment for products that include guaranteed epics.
+func (s *Store) grantEpicCommanders(ctx context.Context, tx Querier, playerID string, worldID int, count int) error {
+	rng := rand.New(rand.NewSource(time.Now().UnixNano()))
+	for i := 0; i < count; i++ {
+		res := sim.SummonEpic(rng)
+		if _, err := tx.Exec(ctx, `
+			INSERT INTO commanders(id, player_id, world_id, key, name, rarity)
+			VALUES($1,$2,$3,$4,$5,$6)`,
+			uuid.NewString(), playerID, worldID, res.Key, res.Name, res.Rarity); err != nil {
+			return err
+		}
+	}
+	_, err := tx.Exec(ctx, `
+		INSERT INTO player_gacha(player_id, pity, total_summons) VALUES($1, 0, $2)
+		ON CONFLICT (player_id) DO UPDATE SET pity=0, total_summons=player_gacha.total_summons+$2, updated_at=now()`,
+		playerID, count)
+	return err
+}
+
 // ---- quests ----
 
 // QuestStatuses returns today's quests with the player's progress.
